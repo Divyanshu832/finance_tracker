@@ -47,9 +47,11 @@ export default async function Dashboard() {
   const monthIncome = incomes.filter((i) => i.received_on >= start && i.received_on <= end).reduce((s, i) => s + i.amount, 0);
   const monthExpense = expenses.filter((e) => e.occurred_on >= start && e.occurred_on <= end).reduce((s, e) => s + e.amount, 0);
   const monthBillsPaid = payments.filter((p) => p.cycle_month === cycleMonth).reduce((s, p) => s + p.amount, 0);
-  const monthInvest = investmentTxs.filter((t) => t.occurred_on >= start && t.occurred_on <= end).reduce((s, t) => s + t.amount, 0);
-  const monthOut = monthExpense + monthBillsPaid + monthInvest;
-  const monthNet = monthIncome - monthOut;
+  const monthInvest = investmentTxs
+    .filter((t) => t.occurred_on >= start && t.occurred_on <= end && !t.excluded_from_balance)
+    .reduce((s, t) => s + t.amount, 0);
+  const monthOut = monthExpense + monthBillsPaid;
+  const monthNet = monthIncome - monthOut - monthInvest;
 
   const paidBillIds = new Set(payments.filter((p) => p.cycle_month === cycleMonth).map((p) => p.bill_id));
   const upcomingBills = bills
@@ -68,7 +70,7 @@ export default async function Dashboard() {
     .map((s) => ({ ...s, due_on: nextDueDate(s.billing_day) }))
     .filter((s) => daysFromNow(s.due_on) >= 0 && daysFromNow(s.due_on) <= 7)
     .sort((a, b) => a.due_on.localeCompare(b.due_on));
-  const investedTotal = investmentTxs.reduce((s, t) => s + t.amount, 0);
+  const investedTotal = investmentTxs.filter((t) => !t.excluded_from_balance).reduce((s, t) => s + t.amount, 0);
   const monthlySubBurn = activeSubs.reduce((s, x) => s + x.amount_inr, 0);
 
   return (
@@ -93,8 +95,15 @@ export default async function Dashboard() {
             <span className="inline-flex items-center gap-1.5">
               <ArrowDownLeft className="size-3.5 text-negative" />
               <Amount paise={monthOut} tone="negative" className="text-sm" />
-              <span className="text-muted-fg">out</span>
+              <span className="text-muted-fg">spent</span>
             </span>
+            {monthInvest > 0 && (
+              <span className="inline-flex items-center gap-1.5">
+                <PiggyBank className="size-3.5 text-invest" />
+                <Amount paise={monthInvest} className="text-sm" />
+                <span className="text-muted-fg">invested</span>
+              </span>
+            )}
             <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-0.5">
               <TrendingUp className="size-3 text-muted-fg" />
               <span className="text-xs">net</span>
@@ -122,6 +131,7 @@ export default async function Dashboard() {
             <div className="flex items-center gap-3 text-[11px] text-muted-fg">
               <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-sm bg-positive" /> income</span>
               <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-sm bg-negative" /> spend</span>
+              <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-sm bg-invest" /> invested</span>
             </div>
           </div>
           <CardContent className="pt-1 min-w-0">

@@ -16,7 +16,8 @@ import { Amount } from "@/components/money/amount";
 import { DeleteButton } from "@/components/delete-button";
 import { EditInvestmentDialog } from "@/components/edit-investment-dialog";
 import { Button } from "@/components/ui/button";
-import { addLumpsum, deleteTransaction } from "@/actions/investment-transactions";
+import { addLumpsum, deleteTransaction, toggleTransactionExcluded } from "@/actions/investment-transactions";
+import { Archive, ArchiveRestore } from "lucide-react";
 import { createSip, deleteSip, toggleSip } from "@/actions/investment-sips";
 import { deleteInvestment } from "@/actions/investments";
 import { getInvestment } from "@/lib/queries";
@@ -127,19 +128,35 @@ export default async function InvestmentDetailPage({ params }: { params: Promise
             ) : (
               <ul className="divide-y divide-border">
                 {transactions.map((t) => (
-                  <li key={t.id} className="flex items-center gap-3 px-5 py-3">
+                  <li key={t.id} className={cn("flex items-center gap-3 px-5 py-3", t.excluded_from_balance && "opacity-60")}>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm flex items-center gap-2">
+                      <div className="font-medium text-sm flex items-center gap-2 flex-wrap">
                         {t.sip_id ? "SIP installment" : "Lumpsum"}
                         {t.sip_id && (
                           <span className="rounded-md bg-positive/15 text-positive px-1.5 py-0.5 text-[10px] uppercase tracking-wider flex items-center gap-1">
                             <Repeat className="size-3" /> Auto
                           </span>
                         )}
+                        {t.excluded_from_balance && (
+                          <span className="rounded-md bg-foreground/10 text-muted-fg px-1.5 py-0.5 text-[10px] uppercase tracking-wider flex items-center gap-1">
+                            <Archive className="size-3" /> Historical
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-muted-fg mt-0.5">{fmtDate(t.occurred_on)}</div>
                     </div>
                     <Amount paise={t.amount} />
+                    <form action={async () => { "use server"; await toggleTransactionExcluded(t.id, !t.excluded_from_balance, id); }}>
+                      <button
+                        type="submit"
+                        className="size-8 grid place-items-center rounded-md text-muted-fg hover:text-foreground hover:bg-surface-2 transition"
+                        title={t.excluded_from_balance ? "Include in cash balance" : "Mark as pre-app history (won't affect balance)"}
+                      >
+                        {t.excluded_from_balance
+                          ? <ArchiveRestore className="size-4" />
+                          : <Archive className="size-4" />}
+                      </button>
+                    </form>
                     <DeleteButton action={async () => { "use server"; await deleteTransaction(t.id, id); }} />
                   </li>
                 ))}
@@ -164,6 +181,14 @@ export default async function InvestmentDetailPage({ params }: { params: Promise
                     <Input id="ls_date" name="occurred_on" type="date" defaultValue={todayISO()} required />
                   </div>
                 </div>
+                <label className="flex items-center gap-2.5 rounded-md border border-border bg-background/40 px-3 py-2.5 cursor-pointer hover:bg-surface-2/40 transition">
+                  <input
+                    type="checkbox"
+                    name="excluded_from_balance"
+                    className="size-4 rounded border-border accent-positive"
+                  />
+                  <span className="text-sm">Historical (don&apos;t affect cash balance)</span>
+                </label>
                 <SubmitButton variant="secondary" className="w-full" pendingText="Adding…">
                   <Plus className="size-4" /> Add lumpsum
                 </SubmitButton>

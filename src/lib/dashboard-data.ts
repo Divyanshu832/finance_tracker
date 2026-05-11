@@ -2,7 +2,7 @@ import { addMonths, format, startOfMonth, endOfMonth } from "date-fns";
 import { getSupabase } from "@/lib/supabase/server";
 import type { ExpenseCategory } from "@/lib/supabase/types";
 
-export type MonthlyPoint = { month: string; label: string; income: number; spend: number; net: number };
+export type MonthlyPoint = { month: string; label: string; income: number; spend: number; invest: number; net: number };
 
 // Last `months` months of income vs spend (expenses + bill payments + investments).
 export async function getMonthlyTrend(months = 6): Promise<MonthlyPoint[]> {
@@ -15,7 +15,7 @@ export async function getMonthlyTrend(months = 6): Promise<MonthlyPoint[]> {
     sb.from("incomes").select("amount, received_on").gte("received_on", startIso),
     sb.from("expenses").select("amount, occurred_on").gte("occurred_on", startIso),
     sb.from("bill_payments").select("amount, paid_on").gte("paid_on", startIso),
-    sb.from("investment_transactions").select("amount, occurred_on").gte("occurred_on", startIso),
+    sb.from("investment_transactions").select("amount, occurred_on, excluded_from_balance").gte("occurred_on", startIso),
   ]);
 
   const points: MonthlyPoint[] = [];
@@ -26,13 +26,17 @@ export async function getMonthlyTrend(months = 6): Promise<MonthlyPoint[]> {
     const inSum = (incomes ?? []).filter((r) => r.received_on >= ms && r.received_on <= me).reduce((s, r) => s + Number(r.amount), 0);
     const exSum = (expenses ?? []).filter((r) => r.occurred_on >= ms && r.occurred_on <= me).reduce((s, r) => s + Number(r.amount), 0);
     const bpSum = (payments ?? []).filter((r) => r.paid_on >= ms && r.paid_on <= me).reduce((s, r) => s + Number(r.amount), 0);
-    const ivSum = (investments ?? []).filter((r) => r.occurred_on >= ms && r.occurred_on <= me).reduce((s, r) => s + Number(r.amount), 0);
+    const ivSum = (investments ?? [])
+      .filter((r) => r.occurred_on >= ms && r.occurred_on <= me && !r.excluded_from_balance)
+      .reduce((s, r) => s + Number(r.amount), 0);
+    const spend = exSum + bpSum;
     points.push({
       month: format(d, "yyyy-MM"),
       label: format(d, "MMM"),
       income: inSum,
-      spend: exSum + bpSum + ivSum,
-      net: inSum - (exSum + bpSum + ivSum),
+      spend,
+      invest: ivSum,
+      net: inSum - spend - ivSum,
     });
   }
   return points;

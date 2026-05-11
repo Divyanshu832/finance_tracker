@@ -136,6 +136,7 @@ export type InvestmentTransaction = {
   amount: number;
   occurred_on: ISODate;
   sip_id: string | null;
+  excluded_from_balance: boolean;
   notes: string | null;
   created_at: ISOTimestamp;
 };

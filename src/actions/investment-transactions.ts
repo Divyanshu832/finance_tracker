@@ -12,16 +12,30 @@ const Lumpsum = z.object({
 });
 
 export async function addLumpsum(formData: FormData) {
-  const input = Lumpsum.parse(Object.fromEntries(formData));
+  const raw = Object.fromEntries(formData);
+  const input = Lumpsum.parse(raw);
+  const excluded = raw.excluded_from_balance === "on" || raw.excluded_from_balance === "true";
   const sb = getSupabase();
   const { error } = await sb.from("investment_transactions").insert({
     investment_id: input.investment_id,
     amount: rupeesToPaise(input.amount),
     occurred_on: input.occurred_on,
+    excluded_from_balance: excluded,
     notes: input.notes || null,
   });
   if (error) throw new Error(error.message);
   revalidatePath(`/investments/${input.investment_id}`);
+  revalidatePath("/investments");
+  revalidatePath("/");
+}
+
+export async function toggleTransactionExcluded(id: string, excluded: boolean, investmentId: string) {
+  const sb = getSupabase();
+  const { error } = await sb.from("investment_transactions")
+    .update({ excluded_from_balance: excluded })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/investments/${investmentId}`);
   revalidatePath("/investments");
   revalidatePath("/");
 }
