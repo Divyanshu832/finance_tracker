@@ -15,7 +15,7 @@ export async function getMonthlyTrend(months = 6): Promise<MonthlyPoint[]> {
     sb.from("incomes").select("amount, received_on").gte("received_on", startIso),
     sb.from("expenses").select("amount, occurred_on").gte("occurred_on", startIso),
     sb.from("bill_payments").select("amount, paid_on").gte("paid_on", startIso),
-    sb.from("investments").select("amount, invested_on").gte("invested_on", startIso),
+    sb.from("investment_transactions").select("amount, occurred_on").gte("occurred_on", startIso),
   ]);
 
   const points: MonthlyPoint[] = [];
@@ -26,7 +26,7 @@ export async function getMonthlyTrend(months = 6): Promise<MonthlyPoint[]> {
     const inSum = (incomes ?? []).filter((r) => r.received_on >= ms && r.received_on <= me).reduce((s, r) => s + Number(r.amount), 0);
     const exSum = (expenses ?? []).filter((r) => r.occurred_on >= ms && r.occurred_on <= me).reduce((s, r) => s + Number(r.amount), 0);
     const bpSum = (payments ?? []).filter((r) => r.paid_on >= ms && r.paid_on <= me).reduce((s, r) => s + Number(r.amount), 0);
-    const ivSum = (investments ?? []).filter((r) => r.invested_on >= ms && r.invested_on <= me).reduce((s, r) => s + Number(r.amount), 0);
+    const ivSum = (investments ?? []).filter((r) => r.occurred_on >= ms && r.occurred_on <= me).reduce((s, r) => s + Number(r.amount), 0);
     points.push({
       month: format(d, "yyyy-MM"),
       label: format(d, "MMM"),
@@ -83,7 +83,7 @@ export async function getRecentActivity(limit = 12): Promise<ActivityItem[]> {
     sb.from("incomes").select("id, amount, source, received_on").order("created_at", { ascending: false }).limit(limit),
     sb.from("expenses").select("id, amount, description, occurred_on").order("created_at", { ascending: false }).limit(limit),
     sb.from("bill_payments").select("id, amount, paid_on, bill_id").order("created_at", { ascending: false }).limit(limit),
-    sb.from("investments").select("id, amount, name, invested_on").order("created_at", { ascending: false }).limit(limit),
+    sb.from("investment_transactions").select("id, amount, occurred_on, sip_id, investment_id, investments(name)").order("created_at", { ascending: false }).limit(limit),
     sb.from("lendings").select("id, amount, counterparty, direction, occurred_on").order("created_at", { ascending: false }).limit(limit),
     sb.from("lending_settlements").select("id, amount, settled_on, lending_id").order("created_at", { ascending: false }).limit(limit),
     sb.from("venture_contributions").select("id, amount, contributed_on, contributor_kind, venture_id").order("created_at", { ascending: false }).limit(limit),
@@ -93,7 +93,15 @@ export async function getRecentActivity(limit = 12): Promise<ActivityItem[]> {
   for (const r of inc.data ?? []) items.push({ id: r.id, kind: "income", title: r.source, amount: Number(r.amount), tone: "positive", date: r.received_on });
   for (const r of exp.data ?? []) items.push({ id: r.id, kind: "expense", title: r.description || "Expense", amount: Number(r.amount), tone: "negative", date: r.occurred_on });
   for (const r of bp.data ?? []) items.push({ id: r.id, kind: "bill", title: "Bill paid", amount: Number(r.amount), tone: "negative", date: r.paid_on });
-  for (const r of inv.data ?? []) items.push({ id: r.id, kind: "investment", title: r.name, amount: Number(r.amount), tone: "neutral", date: r.invested_on });
+  for (const r of inv.data ?? []) {
+    const holding = (r as { investments?: { name?: string } | { name?: string }[] | null }).investments;
+    const name = Array.isArray(holding) ? holding[0]?.name : holding?.name;
+    items.push({
+      id: r.id, kind: "investment",
+      title: `${name ?? "Investment"}${r.sip_id ? " · SIP" : ""}`,
+      amount: Number(r.amount), tone: "neutral", date: r.occurred_on,
+    });
+  }
   for (const r of lend.data ?? []) items.push({
     id: r.id, kind: "lending",
     title: r.direction === "lent" ? `Lent to ${r.counterparty}` : `Borrowed from ${r.counterparty}`,

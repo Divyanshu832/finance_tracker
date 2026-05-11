@@ -12,7 +12,7 @@ import { CategoryDonut } from "@/components/charts/category-donut";
 import { ActivityFeed } from "@/components/activity-feed";
 import {
   getBalance, getBills, getBillPayments, getExpenses,
-  getIncomes, getInvestments, getLendings, getSettlements, getSubscriptions,
+  getIncomes, getInvestmentTransactions, getLendings, getSettlements, getSubscriptions,
   getVentures, outstanding,
 } from "@/lib/queries";
 import { getMonthlyTrend, getCategoryBreakdown, getRecentActivity } from "@/lib/dashboard-data";
@@ -36,10 +36,10 @@ function nextDueDate(due_day: number): string {
 export default async function Dashboard() {
   const [
     balance, incomes, expenses, bills, payments, subs, ventures, lendings,
-    settlements, investments, trend, categoryData, activity,
+    settlements, investmentTxs, trend, categoryData, activity,
   ] = await Promise.all([
     getBalance(), getIncomes(), getExpenses(), getBills(), getBillPayments(),
-    getSubscriptions(), getVentures(), getLendings(), getSettlements(), getInvestments(),
+    getSubscriptions(), getVentures(), getLendings(), getSettlements(), getInvestmentTransactions(),
     getMonthlyTrend(6), getCategoryBreakdown(), getRecentActivity(10),
   ]);
 
@@ -47,7 +47,7 @@ export default async function Dashboard() {
   const monthIncome = incomes.filter((i) => i.received_on >= start && i.received_on <= end).reduce((s, i) => s + i.amount, 0);
   const monthExpense = expenses.filter((e) => e.occurred_on >= start && e.occurred_on <= end).reduce((s, e) => s + e.amount, 0);
   const monthBillsPaid = payments.filter((p) => p.cycle_month === cycleMonth).reduce((s, p) => s + p.amount, 0);
-  const monthInvest = investments.filter((i) => i.invested_on >= start && i.invested_on <= end).reduce((s, i) => s + i.amount, 0);
+  const monthInvest = investmentTxs.filter((t) => t.occurred_on >= start && t.occurred_on <= end).reduce((s, t) => s + t.amount, 0);
   const monthOut = monthExpense + monthBillsPaid + monthInvest;
   const monthNet = monthIncome - monthOut;
 
@@ -68,7 +68,7 @@ export default async function Dashboard() {
     .map((s) => ({ ...s, due_on: nextDueDate(s.billing_day) }))
     .filter((s) => daysFromNow(s.due_on) >= 0 && daysFromNow(s.due_on) <= 7)
     .sort((a, b) => a.due_on.localeCompare(b.due_on));
-  const investedTotal = investments.reduce((s, i) => s + i.amount, 0);
+  const investedTotal = investmentTxs.reduce((s, t) => s + t.amount, 0);
   const monthlySubBurn = activeSubs.reduce((s, x) => s + x.amount_inr, 0);
 
   return (

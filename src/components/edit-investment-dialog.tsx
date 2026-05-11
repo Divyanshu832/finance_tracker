@@ -8,7 +8,6 @@ import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { updateInvestment } from "@/actions/investments";
-import { paiseToRupees } from "@/lib/money";
 
 const TYPE_LABELS: Record<string, string> = {
   mf: "Mutual Fund", stock: "Stock", fd: "FD", rd: "RD",
@@ -17,11 +16,10 @@ const TYPE_LABELS: Record<string, string> = {
 
 export function EditInvestmentDialog({
   investment,
+  triggerLabel,
 }: {
-  investment: {
-    id: string; name: string; type: string; platform: string | null;
-    amount: number; invested_on: string;
-  };
+  investment: { id: string; name: string; type: string; platform: string | null };
+  triggerLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
@@ -40,12 +38,18 @@ export function EditInvestmentDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button type="button" title="Edit"
-          className="size-8 grid place-items-center rounded-md text-muted-fg hover:bg-surface-2 hover:text-foreground transition">
-          <Pencil className="size-3.5" />
-        </button>
+        {triggerLabel ? (
+          <button type="button" className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-muted-fg hover:text-foreground hover:bg-surface-2 transition">
+            <Pencil className="size-3" /> {triggerLabel}
+          </button>
+        ) : (
+          <button type="button" title="Edit"
+            className="size-8 grid place-items-center rounded-md text-muted-fg hover:bg-surface-2 hover:text-foreground transition">
+            <Pencil className="size-3.5" />
+          </button>
+        )}
       </DialogTrigger>
-      <DialogContent title="Edit investment">
+      <DialogContent title="Edit investment" description="Edit the holding. Lumpsums and SIPs are managed separately.">
         <form action={onSubmit} className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="inv_name">Name</Label>
@@ -61,17 +65,6 @@ export function EditInvestmentDialog({
             <div className="space-y-1.5">
               <Label htmlFor="inv_platform">Platform</Label>
               <Input id="inv_platform" name="platform" defaultValue={investment.platform ?? ""} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="inv_amount">Amount (₹)</Label>
-              <Input id="inv_amount" name="amount" type="number" step="0.01" min="0"
-                defaultValue={paiseToRupees(investment.amount).toString()} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="inv_invested_on">Date</Label>
-              <Input id="inv_invested_on" name="invested_on" type="date" defaultValue={investment.invested_on} required />
             </div>
           </div>
           <Button type="submit" disabled={pending} className="w-full">{pending ? "Saving…" : "Save changes"}</Button>

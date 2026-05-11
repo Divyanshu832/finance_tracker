@@ -3,6 +3,7 @@ import type {
   Income, Expense, ExpenseCategory, Bill, BillPayment,
   Subscription, Venture, VentureParticipant, VentureContribution,
   Lending, LendingSettlement, Investment,
+  InvestmentTransaction, InvestmentSip,
 } from "@/lib/supabase/types";
 
 export async function getBalance(): Promise<number> {
@@ -84,8 +85,67 @@ export async function getSettlements(): Promise<LendingSettlement[]> {
 
 export async function getInvestments(): Promise<Investment[]> {
   const sb = getSupabase();
-  const { data } = await sb.from("investments").select("*").order("invested_on", { ascending: false });
+  const { data } = await sb.from("investments").select("*").order("created_at", { ascending: false });
   return data ?? [];
+}
+
+export async function getInvestmentTransactions(): Promise<InvestmentTransaction[]> {
+  const sb = getSupabase();
+  const { data } = await sb.from("investment_transactions").select("*").order("occurred_on", { ascending: false });
+  return data ?? [];
+}
+
+export type InvestmentWithStats = Investment & {
+  total: number;
+  txCount: number;
+  activeSips: number;
+  monthlySip: number;
+  lastActivity: string | null;
+};
+
+export async function getInvestmentsWithStats(): Promise<InvestmentWithStats[]> {
+  const sb = getSupabase();
+  const [{ data: holdings }, { data: txs }, { data: sips }] = await Promise.all([
+    sb.from("investments").select("*").order("created_at", { ascending: false }),
+    sb.from("investment_transactions").select("investment_id, amount, occurred_on"),
+    sb.from("investment_sips").select("investment_id, monthly_amount, active"),
+  ]);
+
+  return (holdings ?? []).map((h) => {
+    const myTx = (txs ?? []).filter((t) => t.investment_id === h.id);
+    const mySips = (sips ?? []).filter((s) => s.investment_id === h.id);
+    const total = myTx.reduce((s, t) => s + t.amount, 0);
+    const lastActivity = myTx.length
+      ? myTx.map((t) => t.occurred_on).sort().reverse()[0]
+      : null;
+    const activeSips = mySips.filter((s) => s.active);
+    return {
+      ...h,
+      total,
+      txCount: myTx.length,
+      activeSips: activeSips.length,
+      monthlySip: activeSips.reduce((s, x) => s + x.monthly_amount, 0),
+      lastActivity,
+    };
+  });
+}
+
+export async function getInvestment(id: string): Promise<{
+  investment: Investment | null;
+  transactions: InvestmentTransaction[];
+  sips: InvestmentSip[];
+}> {
+  const sb = getSupabase();
+  const [inv, txs, sips] = await Promise.all([
+    sb.from("investments").select("*").eq("id", id).maybeSingle(),
+    sb.from("investment_transactions").select("*").eq("investment_id", id).order("occurred_on", { ascending: false }),
+    sb.from("investment_sips").select("*").eq("investment_id", id).order("created_at", { ascending: false }),
+  ]);
+  return {
+    investment: (inv.data ?? null) as Investment | null,
+    transactions: (txs.data ?? []) as InvestmentTransaction[],
+    sips: (sips.data ?? []) as InvestmentSip[],
+  };
 }
 
 // Outstanding amount for a single lending (amount - sum(settlements))

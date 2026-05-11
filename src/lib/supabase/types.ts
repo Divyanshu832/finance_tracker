@@ -126,8 +126,29 @@ export type Investment = {
   name: string;
   type: "mf" | "stock" | "fd" | "rd" | "gold" | "crypto" | "other";
   platform: string | null;
+  notes: string | null;
+  created_at: ISOTimestamp;
+};
+
+export type InvestmentTransaction = {
+  id: string;
+  investment_id: string;
   amount: number;
-  invested_on: ISODate;
+  occurred_on: ISODate;
+  sip_id: string | null;
+  notes: string | null;
+  created_at: ISOTimestamp;
+};
+
+export type InvestmentSip = {
+  id: string;
+  investment_id: string;
+  monthly_amount: number;
+  sip_day: number;
+  start_on: ISODate;
+  end_on: ISODate | null;
+  active: boolean;
+  last_charged_on: ISODate | null;
   notes: string | null;
   created_at: ISOTimestamp;
 };
@@ -154,6 +175,8 @@ export type Database = {
       lendings: { Row: Lending; Insert: Partial<Lending>; Update: Partial<Lending> };
       lending_settlements: { Row: LendingSettlement; Insert: Partial<LendingSettlement>; Update: Partial<LendingSettlement> };
       investments: { Row: Investment; Insert: Partial<Investment>; Update: Partial<Investment> };
+      investment_transactions: { Row: InvestmentTransaction; Insert: Partial<InvestmentTransaction>; Update: Partial<InvestmentTransaction> };
+      investment_sips: { Row: InvestmentSip; Insert: Partial<InvestmentSip>; Update: Partial<InvestmentSip> };
       app_settings: { Row: AppSetting; Insert: Partial<AppSetting>; Update: Partial<AppSetting> };
     };
     Views: {

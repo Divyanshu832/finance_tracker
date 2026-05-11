@@ -1,18 +1,19 @@
-import { PiggyBank, Plus } from "lucide-react";
+import Link from "next/link";
+import { PiggyBank, Plus, Repeat, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { SubmitButton } from "@/components/submit-button";
 import { Empty } from "@/components/ui/empty";
 import { Amount } from "@/components/money/amount";
-import { DeleteButton } from "@/components/delete-button";
-import { EditInvestmentDialog } from "@/components/edit-investment-dialog";
 import { EmergencyFundCard } from "@/components/emergency-fund-card";
-import { addInvestment, deleteInvestment } from "@/actions/investments";
-import { getInvestments, getEmergencyFund } from "@/lib/queries";
+import { addInvestment } from "@/actions/investments";
+import { getInvestmentsWithStats, getEmergencyFund } from "@/lib/queries";
 import { fmtDate, todayISO } from "@/lib/dates";
+import { cn } from "@/lib/utils";
 
 const TYPE_LABELS: Record<string, string> = {
   mf: "Mutual Fund", stock: "Stock", fd: "FD", rd: "RD",
@@ -21,14 +22,14 @@ const TYPE_LABELS: Record<string, string> = {
 
 export default async function InvestmentsPage() {
   const [items, emergency] = await Promise.all([
-    getInvestments(),
+    getInvestmentsWithStats(),
     getEmergencyFund(),
   ]);
-  const total = items.reduce((s, i) => s + i.amount, 0);
+  const total = items.reduce((s, i) => s + i.total, 0);
+  const monthlySip = items.reduce((s, i) => s + i.monthlySip, 0);
 
-  // Group by type for the breakdown
   const byType = items.reduce((acc, i) => {
-    acc[i.type] = (acc[i.type] || 0) + i.amount;
+    acc[i.type] = (acc[i.type] || 0) + i.total;
     return acc;
   }, {} as Record<string, number>);
 
@@ -36,7 +37,7 @@ export default async function InvestmentsPage() {
     <>
       <PageHeader
         title="Investments"
-        subtitle="What you've deployed from your salary. Log-only — no live prices."
+        subtitle="Holdings, lumpsums, and SIPs. Log-only — no live prices."
         icon={PiggyBank}
         iconClassName="text-invest"
       />
@@ -47,8 +48,20 @@ export default async function InvestmentsPage() {
 
           <Card>
             <CardContent>
-              <div className="text-xs uppercase tracking-wider text-muted-fg">Total invested</div>
-              <Amount paise={total} className="text-3xl mt-1 block" tone="default" />
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-muted-fg">Total invested</div>
+                  <Amount paise={total} className="text-3xl mt-1 block" tone="default" />
+                </div>
+                {monthlySip > 0 && (
+                  <div className="text-right">
+                    <div className="text-xs uppercase tracking-wider text-muted-fg flex items-center gap-1.5 justify-end">
+                      <Repeat className="size-3" /> Monthly SIP
+                    </div>
+                    <Amount paise={monthlySip} className="text-lg mt-1 block" tone="positive" />
+                  </div>
+                )}
+              </div>
               {Object.keys(byType).length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {Object.entries(byType).map(([t, amt]) => (
@@ -63,23 +76,42 @@ export default async function InvestmentsPage() {
           </Card>
 
           {items.length === 0 ? (
-            <Card><Empty icon={PiggyBank} title="No investments logged" hint="Log every SIP, FD, or buy on the right." /></Card>
+            <Card><Empty icon={PiggyBank} title="No holdings yet" hint="Create one on the right, then add lumpsums or set up a SIP." /></Card>
           ) : (
             <Card>
               <ul className="divide-y divide-border">
                 {items.map((i) => (
-                  <li key={i.id} className="flex items-center gap-3 px-5 py-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{i.name}</div>
-                      <div className="text-xs text-muted-fg mt-0.5 flex gap-2">
-                        <span>{TYPE_LABELS[i.type] || i.type}</span>
-                        {i.platform && <span>· {i.platform}</span>}
-                        <span>· {fmtDate(i.invested_on)}</span>
+                  <li key={i.id}>
+                    <Link
+                      href={`/investments/${i.id}`}
+                      className="flex items-center gap-3 px-5 py-3 hover:bg-surface-2/40 transition group"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate flex items-center gap-2">
+                          <span className="truncate">{i.name}</span>
+                          {i.activeSips > 0 && (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-positive/15 text-positive px-1.5 py-0.5 text-[10px] uppercase tracking-wider">
+                              <Repeat className="size-3" /> SIP
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-fg mt-0.5 flex gap-2 flex-wrap">
+                          <span>{TYPE_LABELS[i.type] || i.type}</span>
+                          {i.platform && <span>· {i.platform}</span>}
+                          {i.lastActivity && <span>· last {fmtDate(i.lastActivity)}</span>}
+                          <span>· {i.txCount} {i.txCount === 1 ? "txn" : "txns"}</span>
+                        </div>
                       </div>
-                    </div>
-                    <Amount paise={i.amount} />
-                    <EditInvestmentDialog investment={{ id: i.id, name: i.name, type: i.type, platform: i.platform, amount: i.amount, invested_on: i.invested_on }} />
-                    <DeleteButton action={async () => { "use server"; await deleteInvestment(i.id); }} />
+                      <div className="text-right">
+                        <Amount paise={i.total} className="text-base" />
+                        {i.monthlySip > 0 && (
+                          <div className="text-[10px] text-muted-fg mt-0.5">
+                            <Amount paise={i.monthlySip} className="text-[10px]" />/mo
+                          </div>
+                        )}
+                      </div>
+                      <ArrowRight className={cn("size-4 text-muted-fg group-hover:text-foreground group-hover:translate-x-0.5 transition-all")} />
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -90,7 +122,7 @@ export default async function InvestmentsPage() {
         <form action={addInvestment} className="space-y-3">
           <Card>
             <CardContent className="space-y-3">
-              <div className="text-sm font-medium mb-1">New investment</div>
+              <div className="text-sm font-medium mb-1">New holding</div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="name">Name</Label>
@@ -110,17 +142,30 @@ export default async function InvestmentsPage() {
                   <Input id="platform" name="platform" placeholder="Zerodha" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="amount">Amount (₹)</Label>
-                  <Input id="amount" name="amount" type="number" step="0.01" min="0" required />
+
+              <div className="rounded-md border border-dashed border-border p-3 space-y-2">
+                <div className="text-xs uppercase tracking-wider text-muted-fg">Optional initial lumpsum</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="initial_amount">Amount (₹)</Label>
+                    <Input id="initial_amount" name="initial_amount" type="number" step="0.01" min="0" placeholder="0" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="initial_date">Date</Label>
+                    <Input id="initial_date" name="initial_date" type="date" defaultValue={todayISO()} />
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="invested_on">Date</Label>
-                  <Input id="invested_on" name="invested_on" type="date" defaultValue={todayISO()} required />
-                </div>
+                <p className="text-[10px] text-muted-fg">Add more lumpsums or set up a SIP on the holding page.</p>
               </div>
-              <SubmitButton className="w-full" pendingText="Adding…"><Plus className="size-4" /> Add investment</SubmitButton>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea id="notes" name="notes" placeholder="Optional" />
+              </div>
+
+              <SubmitButton className="w-full" pendingText="Creating…">
+                <Plus className="size-4" /> Create holding
+              </SubmitButton>
             </CardContent>
           </Card>
         </form>
