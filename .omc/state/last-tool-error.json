@@ -1,7 +1,7 @@
 {
-  "tool_name": "mcp__claude_ai_Supabase__apply_migration",
-  "tool_input_preview": "{\"project_id\":\"fpqqftgnvkhhywemcpak\",\"name\":\"0001_init\",\"query\":\"-- Munim init schema. All money in paise (INR x 100) as bigint.\\n\\ncreate extension if not exists pgcrypto;\\n\\ncreate table incomes (\\n...",
-  "error": "{\"error\":{\"name\":\"McpError\",\"message\":\"MCP error -32600: You do not have permission to perform this action\"}}",
-  "timestamp": "2026-05-11T11:16:30.579Z",
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"rm -rf D:/finance_app/.next 2>&1 && echo cleared\",\"description\":\"Wipe stale .next so route validator regenerates\"}",
+  "error": "Exit code 1\nrm: cannot remove 'D:/finance_app/.next/dev/server': Directory not empty",
+  "timestamp": "2026-05-11T11:58:54.298Z",
   "retry_count": 1
 }

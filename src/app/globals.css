@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-fg: var(--muted-fg);
+  --color-accent: var(--accent);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-warning: var(--warning);
+  --color-venture: var(--venture);
+  --color-lending: var(--lending);
+  --color-invest: var(--invest);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* Munim — dark by default, always. */
+  --background: #09090b;        /* zinc-950 */
+  --foreground: #f4f4f5;        /* zinc-100 */
+  --surface: #18181b;           /* zinc-900 */
+  --surface-2: #27272a;         /* zinc-800 */
+  --border: #27272a;            /* zinc-800 */
+  --muted: #3f3f46;             /* zinc-700 */
+  --muted-fg: #a1a1aa;          /* zinc-400 */
+  --accent: #f4f4f5;            /* zinc-100 */
+
+  --positive: #34d399;          /* emerald-400 */
+  --negative: #fb7185;          /* rose-400 */
+  --warning: #fcd34d;           /* amber-300 */
+  --venture: #a78bfa;           /* violet-400 */
+  --lending: #38bdf8;           /* sky-400 */
+  --invest: #f472b6;            /* pink-400 */
+}
+
+html, body {
+  background: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "cv11", "ss01";
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+
+.mono {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-feature-settings: "tnum", "zero", "ss01";
+}
+
+/* Subtle scrollbar */
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Inputs — keep font inheriting from body; do NOT force color inherit on
+   buttons (it would override Tailwind text-* utilities). */
+input, select, textarea, button { font: inherit; }
+input, select, textarea { color: inherit; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }

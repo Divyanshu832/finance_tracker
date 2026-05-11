@@ -1,0 +1,364 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1778500076004,
+  "projectRoot": "D:\\finance_app",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "16.2.6",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "19.2.4",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.4",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "eslint"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "scripts",
+      "src"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 5,
+      "lastAccessed": 1778500075857,
+      "keyFiles": [
+        "file.svg",
+        "globe.svg",
+        "next.svg",
+        "vercel.svg",
+        "window.svg"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 1,
+      "lastAccessed": 1778500075859,
+      "keyFiles": [
+        "apply-migrations.mjs"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 1,
+      "lastAccessed": 1778500075901,
+      "keyFiles": [
+        "middleware.ts"
+      ]
+    },
+    "supabase": {
+      "path": "supabase",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1778500075903,
+      "keyFiles": []
+    },
+    "src\\app": {
+      "path": "src\\app",
+      "purpose": "Application code",
+      "fileCount": 4,
+      "lastAccessed": 1778500075905,
+      "keyFiles": [
+        "favicon.ico",
+        "globals.css",
+        "layout.tsx"
+      ]
+    },
+    "src\\components": {
+      "path": "src\\components",
+      "purpose": "UI components",
+      "fileCount": 3,
+      "lastAccessed": 1778500075906,
+      "keyFiles": [
+        "delete-button.tsx",
+        "page-header.tsx",
+        "settle-dialog.tsx"
+      ]
+    },
+    "src\\lib": {
+      "path": "src\\lib",
+      "purpose": "Library code",
+      "fileCount": 6,
+      "lastAccessed": 1778500075907,
+      "keyFiles": [
+        "dashboard-data.ts",
+        "dates.ts",
+        "money.ts"
+      ]
+    },
+    "supabase\\migrations": {
+      "path": "supabase\\migrations",
+      "purpose": "Database migrations",
+      "fileCount": 5,
+      "lastAccessed": 1778500075908,
+      "keyFiles": [
+        "0001_init.sql",
+        "0002_seed_categories.sql",
+        "0003_triggers.sql"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src\\app\\(app)\\ventures\\[id]\\page.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1778501523950,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\nav\\sidebar.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1778500267233,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\charts\\spend-trend.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1778501011326,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\charts\\category-donut.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1778501017864,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(app)\\page.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1778501019805,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(app)\\expenses\\page.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1778501268806,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\activity-feed.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1778500233783,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(auth)\\login\\page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1778500260599,
+      "type": "file"
+    },
+    {
+      "path": "src\\actions\\expenses.ts",
+      "accessCount": 2,
+      "lastAccessed": 1778501251313,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(app)\\income\\page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1778501483993,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(app)\\bills\\page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1778501487731,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(app)\\subscriptions\\page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1778501492647,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(app)\\investments\\page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1778501495928,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(app)\\lending\\page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1778501505012,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\charts\\monthly-trend.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778500158953,
+      "type": "file"
+    },
+    {
+      "path": "src\\lib\\aggregations.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778500161760,
+      "type": "file"
+    },
+    {
+      "path": "src\\lib\\dashboard-data.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778500186500,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\(app)\\layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778500269773,
+      "type": "file"
+    },
+    {
+      "path": "src\\app\\layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778500710372,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\edit-expense-dialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778501259667,
+      "type": "file"
+    },
+    {
+      "path": "src\\actions\\income.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778501358468,
+      "type": "file"
+    },
+    {
+      "path": "src\\actions\\bills.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778501366198,
+      "type": "file"
+    },
+    {
+      "path": "src\\actions\\subscriptions.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778501377145,
+      "type": "file"
+    },
+    {
+      "path": "src\\actions\\investments.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778501382085,
+      "type": "file"
+    },
+    {
+      "path": "src\\actions\\lendings.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778501389373,
+      "type": "file"
+    },
+    {
+      "path": "src\\actions\\ventures.ts",
+      "accessCount": 1,
+      "lastAccessed": 1778501406638,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\edit-income-dialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778501419340,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\edit-bill-dialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778501427742,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\edit-subscription-dialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778501435751,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\edit-investment-dialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778501443764,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\edit-lending-dialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778501452114,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\edit-venture-dialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778501459386,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\edit-participant-dialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778501464683,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\edit-contribution-dialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1778501472455,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
