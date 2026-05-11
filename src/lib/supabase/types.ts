@@ -8,7 +8,6 @@ export type ExpenseCategory = {
   id: string;
   name: string;
   color: string;
-  icon: string;
   created_at: ISOTimestamp;
 };
 
@@ -63,7 +62,6 @@ export type Subscription = {
   category_id: string | null;
   active: boolean;
   last_charged_on: ISODate | null;
-  icon: string | null;
   notes: string | null;
   created_at: ISOTimestamp;
 };

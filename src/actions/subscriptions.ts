@@ -11,7 +11,6 @@ const Subscription = z.object({
   native_currency: z.string().min(1).max(8).default("INR"),
   billing_day: z.coerce.number().int().min(1).max(31),
   category_id: z.string().uuid().optional().nullable().or(z.literal("")),
-  icon: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
 });
 
@@ -24,7 +23,6 @@ export async function addSubscription(formData: FormData) {
     native_currency: input.native_currency,
     billing_day: input.billing_day,
     category_id: input.category_id ? input.category_id : null,
-    icon: input.icon || "repeat",
     notes: input.notes || null,
     active: true,
   });
@@ -65,7 +63,6 @@ export async function updateSubscription(formData: FormData) {
     native_currency: input.native_currency,
     billing_day: input.billing_day,
     category_id: input.category_id ? input.category_id : null,
-    icon: input.icon || "repeat",
     notes: input.notes || null,
   }).eq("id", input.id);
   if (error) throw new Error(error.message);
