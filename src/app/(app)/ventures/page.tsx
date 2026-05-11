@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Empty } from "@/components/ui/empty";
 import { Amount } from "@/components/money/amount";
 import { createVenture } from "@/actions/ventures";
@@ -114,7 +114,7 @@ export default async function VenturesPage() {
                 <Label htmlFor="description">Description</Label>
                 <Textarea id="description" name="description" placeholder="Optional" />
               </div>
-              <Button type="submit" className="w-full"><Plus className="size-4" /> Create venture</Button>
+              <SubmitButton className="w-full" pendingText="Creating…"><Plus className="size-4" /> Create venture</SubmitButton>
             </CardContent>
           </Card>
           <p className="text-xs text-muted-fg px-1">

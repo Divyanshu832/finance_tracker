@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"rm -rf D:/finance_app/.next 2>&1 && echo cleared\",\"description\":\"Wipe stale .next so route validator regenerates\"}",
-  "error": "Exit code 1\nrm: cannot remove 'D:/finance_app/.next/dev/server': Directory not empty",
-  "timestamp": "2026-05-11T11:58:54.298Z",
-  "retry_count": 1
-}

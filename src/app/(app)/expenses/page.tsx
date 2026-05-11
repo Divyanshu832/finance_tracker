@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Empty } from "@/components/ui/empty";
 import { Amount } from "@/components/money/amount";
 import { DeleteButton } from "@/components/delete-button";
@@ -113,7 +113,7 @@ export default async function ExpensesPage() {
                   ))}
                 </Select>
               </div>
-              <Button type="submit" className="w-full"><Plus className="size-4" /> Add expense</Button>
+              <SubmitButton className="w-full" pendingText="Adding…"><Plus className="size-4" /> Add expense</SubmitButton>
             </CardContent>
           </Card>
         </form>

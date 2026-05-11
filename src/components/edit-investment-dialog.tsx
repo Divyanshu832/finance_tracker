@@ -20,7 +20,7 @@ export function EditInvestmentDialog({
 }: {
   investment: {
     id: string; name: string; type: string; platform: string | null;
-    amount: number; invested_on: string;
+    amount: number; invested_on: string; counts_toward_emergency: boolean;
   };
 }) {
   const [open, setOpen] = useState(false);
@@ -74,6 +74,15 @@ export function EditInvestmentDialog({
               <Input id="inv_invested_on" name="invested_on" type="date" defaultValue={investment.invested_on} required />
             </div>
           </div>
+          <label className="flex items-center gap-2.5 rounded-md border border-border bg-background/40 px-3 py-2.5 cursor-pointer hover:bg-surface-2/40 transition">
+            <input
+              type="checkbox"
+              name="counts_toward_emergency"
+              defaultChecked={investment.counts_toward_emergency}
+              className="size-4 rounded border-border accent-positive"
+            />
+            <span className="text-sm">Counts toward emergency fund</span>
+          </label>
           <Button type="submit" disabled={pending} className="w-full">{pending ? "Saving…" : "Save changes"}</Button>
         </form>
       </DialogContent>

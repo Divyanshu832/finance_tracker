@@ -93,3 +93,9 @@ export function outstanding(lending: Lending, settlements: LendingSettlement[]):
   const paid = settlements.filter((s) => s.lending_id === lending.id).reduce((s, x) => s + x.amount, 0);
   return Math.max(0, lending.amount - paid);
 }
+
+export async function getEmergencyFundTarget(): Promise<number> {
+  const sb = getSupabase();
+  const { data } = await sb.from("app_settings").select("value").eq("key", "emergency_fund_target_paise").maybeSingle();
+  return data ? Number(data.value) || 0 : 0;
+}

@@ -129,7 +129,14 @@ export type Investment = {
   amount: number;
   invested_on: ISODate;
   notes: string | null;
+  counts_toward_emergency: boolean;
   created_at: ISOTimestamp;
+};
+
+export type AppSetting = {
+  key: string;
+  value: string;
+  updated_at: ISOTimestamp;
 };
 
 // Loose Database type for createClient<>
@@ -148,6 +155,7 @@ export type Database = {
       lendings: { Row: Lending; Insert: Partial<Lending>; Update: Partial<Lending> };
       lending_settlements: { Row: LendingSettlement; Insert: Partial<LendingSettlement>; Update: Partial<LendingSettlement> };
       investments: { Row: Investment; Insert: Partial<Investment>; Update: Partial<Investment> };
+      app_settings: { Row: AppSetting; Insert: Partial<AppSetting>; Update: Partial<AppSetting> };
     };
     Views: {
       v_balance: { Row: { balance_paise: number } };

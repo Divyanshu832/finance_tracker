@@ -72,6 +72,14 @@ body {
    buttons (it would override Tailwind text-* utilities). */
 input, select, textarea, button { font: inherit; }
 input, select, textarea { color: inherit; }
+
+/* iOS Safari zooms into any focused form field whose font-size is < 16px.
+   Force 16px on small screens to prevent the auto-zoom. */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none; margin: 0;

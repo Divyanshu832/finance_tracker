@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Empty } from "@/components/ui/empty";
 import { Amount } from "@/components/money/amount";
 import { DeleteButton } from "@/components/delete-button";
@@ -145,7 +146,7 @@ export default async function BillsPage() {
                   <Input id="start_on" name="start_on" type="date" defaultValue={todayISO()} required />
                 </div>
               </div>
-              <Button type="submit" className="w-full"><Plus className="size-4" /> Add bill</Button>
+              <SubmitButton className="w-full" pendingText="Adding…"><Plus className="size-4" /> Add bill</SubmitButton>
             </CardContent>
           </Card>
         </form>

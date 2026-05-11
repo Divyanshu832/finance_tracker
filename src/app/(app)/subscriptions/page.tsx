@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Empty } from "@/components/ui/empty";
 import { Amount } from "@/components/money/amount";
 import { DeleteButton } from "@/components/delete-button";
@@ -28,7 +29,7 @@ export default async function SubscriptionsPage() {
         icon={Repeat}
         action={
           <form action={async () => { "use server"; await processDueSubscriptions(); }}>
-            <Button type="submit" variant="secondary">Sync due this month</Button>
+            <SubmitButton variant="secondary" pendingText="Syncing…" size="sm">Sync due this month</SubmitButton>
           </form>
         }
       />
@@ -114,7 +115,7 @@ export default async function SubscriptionsPage() {
                   </Select>
                 </div>
               </div>
-              <Button type="submit" className="w-full"><Plus className="size-4" /> Add subscription</Button>
+              <SubmitButton className="w-full" pendingText="Adding…"><Plus className="size-4" /> Add subscription</SubmitButton>
             </CardContent>
           </Card>
         </form>

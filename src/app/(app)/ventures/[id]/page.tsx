@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Empty } from "@/components/ui/empty";
 import { Amount } from "@/components/money/amount";
 import { DeleteButton } from "@/components/delete-button";
@@ -250,9 +251,9 @@ export default async function VentureDetailPage({ params }: { params: Promise<{ 
                     />
                   </div>
                 </div>
-                <Button type="submit" variant="secondary" className="w-full">
+                <SubmitButton variant="secondary" className="w-full" pendingText="Adding…">
                   <Plus className="size-4" /> Add
-                </Button>
+                </SubmitButton>
                 {pctRemaining === 0 && participants.length > 0 && (
                   <p className="text-[10px] text-muted-fg">
                     All shares allocated. Remove someone or adjust your % to add more.
