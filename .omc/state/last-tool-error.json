@@ -1,0 +1,7 @@
+{
+  "tool_name": "mcp__claude_ai_Supabase__apply_migration",
+  "tool_input_preview": "{\"project_id\":\"fpqqftgnvkhhywemcpak\",\"name\":\"0001_init\",\"query\":\"-- Munim init schema. All money in paise (INR x 100) as bigint.\\n\\ncreate extension if not exists pgcrypto;\\n\\ncreate table incomes (\\n...",
+  "error": "{\"error\":{\"name\":\"McpError\",\"message\":\"MCP error -32600: You do not have permission to perform this action\"}}",
+  "timestamp": "2026-05-11T11:16:30.579Z",
+  "retry_count": 1
+}
