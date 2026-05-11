@@ -129,7 +129,6 @@ export type Investment = {
   amount: number;
   invested_on: ISODate;
   notes: string | null;
-  counts_toward_emergency: boolean;
   created_at: ISOTimestamp;
 };
 

@@ -11,15 +11,10 @@ const Investment = z.object({
   amount: z.coerce.number().positive(),
   invested_on: z.string().min(10),
   notes: z.string().optional().nullable(),
-  counts_toward_emergency: z.coerce.boolean().optional().default(false),
 });
 
 export async function addInvestment(formData: FormData) {
-  const raw = Object.fromEntries(formData);
-  const input = Investment.parse({
-    ...raw,
-    counts_toward_emergency: raw.counts_toward_emergency === "on" || raw.counts_toward_emergency === "true",
-  });
+  const input = Investment.parse(Object.fromEntries(formData));
   const sb = getSupabase();
   const { error } = await sb.from("investments").insert({
     name: input.name,
@@ -28,7 +23,6 @@ export async function addInvestment(formData: FormData) {
     amount: rupeesToPaise(input.amount),
     invested_on: input.invested_on,
     notes: input.notes || null,
-    counts_toward_emergency: input.counts_toward_emergency,
   });
   if (error) throw new Error(error.message);
   revalidatePath("/investments");
@@ -46,11 +40,7 @@ export async function deleteInvestment(id: string) {
 const InvestmentUpdate = Investment.extend({ id: z.string().uuid() });
 
 export async function updateInvestment(formData: FormData) {
-  const raw = Object.fromEntries(formData);
-  const input = InvestmentUpdate.parse({
-    ...raw,
-    counts_toward_emergency: raw.counts_toward_emergency === "on" || raw.counts_toward_emergency === "true",
-  });
+  const input = InvestmentUpdate.parse(Object.fromEntries(formData));
   const sb = getSupabase();
   const { error } = await sb.from("investments").update({
     name: input.name,
@@ -59,7 +49,6 @@ export async function updateInvestment(formData: FormData) {
     amount: rupeesToPaise(input.amount),
     invested_on: input.invested_on,
     notes: input.notes || null,
-    counts_toward_emergency: input.counts_toward_emergency,
   }).eq("id", input.id);
   if (error) throw new Error(error.message);
   revalidatePath("/investments");

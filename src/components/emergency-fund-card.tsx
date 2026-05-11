@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Amount } from "@/components/money/amount";
 import { toast } from "sonner";
-import { setEmergencyTarget } from "@/actions/settings";
+import { setEmergencyFund } from "@/actions/settings";
 import { paiseToRupees } from "@/lib/money";
 
 export function EmergencyFundCard({
@@ -28,8 +28,8 @@ export function EmergencyFundCard({
   const onSubmit = (formData: FormData) => {
     start(async () => {
       try {
-        await setEmergencyTarget(formData);
-        toast.success("Target updated");
+        await setEmergencyFund(formData);
+        toast.success("Emergency fund updated");
         setOpen(false);
       } catch (e) { toast.error((e as Error).message); }
     });
@@ -49,7 +49,7 @@ export function EmergencyFundCard({
                 {target > 0
                   ? done
                     ? "Goal reached"
-                    : `${pct}% there · ${remaining > 0 ? "" : ""}`
+                    : `${pct}% there`
                   : "Set a target to start tracking"}
               </div>
             </div>
@@ -60,10 +60,10 @@ export function EmergencyFundCard({
                 type="button"
                 className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-muted-fg hover:text-foreground hover:bg-surface-2 transition"
               >
-                <Pencil className="size-3" /> Target
+                <Pencil className="size-3" /> Edit
               </button>
             </DialogTrigger>
-            <DialogContent title="Set emergency fund target" description="The amount you want to keep stashed for emergencies.">
+            <DialogContent title="Emergency fund" description="Set how much you want to keep and how much you've stashed so far.">
               <form action={onSubmit} className="space-y-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="ef_target">Target (₹)</Label>
@@ -79,8 +79,20 @@ export function EmergencyFundCard({
                   />
                   <p className="text-[11px] text-muted-fg">Tip: 6× your monthly spend is a healthy benchmark.</p>
                 </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ef_saved">Saved so far (₹)</Label>
+                  <Input
+                    id="ef_saved"
+                    name="saved"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    defaultValue={paiseToRupees(saved).toString()}
+                    required
+                  />
+                </div>
                 <Button type="submit" disabled={pending} className="w-full">
-                  {pending ? "Saving…" : "Save target"}
+                  {pending ? "Saving…" : "Save"}
                 </Button>
               </form>
             </DialogContent>
@@ -104,11 +116,6 @@ export function EmergencyFundCard({
         {target > 0 && !done && (
           <div className="mt-2 text-[11px] text-muted-fg">
             <Amount paise={remaining} className="text-[11px]" /> to go
-          </div>
-        )}
-        {target === 0 && (
-          <div className="mt-2 text-[11px] text-muted-fg">
-            Tag any investment as &quot;emergency fund&quot; below and it&apos;ll count here.
           </div>
         )}
       </CardContent>

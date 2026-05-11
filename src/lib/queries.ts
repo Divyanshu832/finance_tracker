@@ -94,8 +94,14 @@ export function outstanding(lending: Lending, settlements: LendingSettlement[]):
   return Math.max(0, lending.amount - paid);
 }
 
-export async function getEmergencyFundTarget(): Promise<number> {
+export async function getEmergencyFund(): Promise<{ target: number; saved: number }> {
   const sb = getSupabase();
-  const { data } = await sb.from("app_settings").select("value").eq("key", "emergency_fund_target_paise").maybeSingle();
-  return data ? Number(data.value) || 0 : 0;
+  const { data } = await sb.from("app_settings")
+    .select("key, value")
+    .in("key", ["emergency_fund_target_paise", "emergency_fund_saved_paise"]);
+  const map = new Map((data ?? []).map((r) => [r.key, Number(r.value) || 0]));
+  return {
+    target: map.get("emergency_fund_target_paise") ?? 0,
+    saved: map.get("emergency_fund_saved_paise") ?? 0,
+  };
 }

@@ -4,18 +4,19 @@ import { z } from "zod";
 import { getSupabase } from "@/lib/supabase/server";
 import { rupeesToPaise } from "@/lib/money";
 
-const Target = z.object({
+const EmergencyFund = z.object({
   target: z.coerce.number().min(0),
+  saved: z.coerce.number().min(0),
 });
 
-export async function setEmergencyTarget(formData: FormData) {
-  const { target } = Target.parse(Object.fromEntries(formData));
+export async function setEmergencyFund(formData: FormData) {
+  const { target, saved } = EmergencyFund.parse(Object.fromEntries(formData));
   const sb = getSupabase();
-  const { error } = await sb.from("app_settings").upsert({
-    key: "emergency_fund_target_paise",
-    value: String(rupeesToPaise(target)),
-    updated_at: new Date().toISOString(),
-  });
+  const now = new Date().toISOString();
+  const { error } = await sb.from("app_settings").upsert([
+    { key: "emergency_fund_target_paise", value: String(rupeesToPaise(target)), updated_at: now },
+    { key: "emergency_fund_saved_paise", value: String(rupeesToPaise(saved)), updated_at: now },
+  ]);
   if (error) throw new Error(error.message);
   revalidatePath("/investments");
   revalidatePath("/");
