@@ -31,11 +31,11 @@
   --accent: #f4f4f5;            /* zinc-100 */
 
   --positive: #34d399;          /* emerald-400 */
-  --negative: #fb7185;          /* rose-400 */
+  --negative: #f87171;          /* red-400 — light red */
   --warning: #fcd34d;           /* amber-300 */
   --venture: #a78bfa;           /* violet-400 */
   --lending: #38bdf8;           /* sky-400 */
-  --invest: #f472b6;            /* pink-400 */
+  --invest: #60a5fa;            /* blue-400 */
 }
 
 html, body {

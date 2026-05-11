@@ -20,12 +20,12 @@ export function SpendTrendChart({ data }: { data: MonthlyPoint[] }) {
               <stop offset="100%" stopColor="#34d399" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="grad-out" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#fb7185" stopOpacity={0.45} />
-              <stop offset="100%" stopColor="#fb7185" stopOpacity={0} />
+              <stop offset="0%" stopColor="#f87171" stopOpacity={0.45} />
+              <stop offset="100%" stopColor="#f87171" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="grad-invest" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f472b6" stopOpacity={0.4} />
-              <stop offset="100%" stopColor="#f472b6" stopOpacity={0} />
+              <stop offset="0%" stopColor="#60a5fa" stopOpacity={0.4} />
+              <stop offset="100%" stopColor="#60a5fa" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
@@ -39,8 +39,8 @@ export function SpendTrendChart({ data }: { data: MonthlyPoint[] }) {
             formatter={(v, name) => [formatINR(Number(v)), LABELS[String(name)] ?? String(name)]}
           />
           <Area type="monotone" dataKey="income" stroke="#34d399" strokeWidth={2} fill="url(#grad-in)" isAnimationActive={false} />
-          <Area type="monotone" dataKey="spend"  stroke="#fb7185" strokeWidth={2} fill="url(#grad-out)" isAnimationActive={false} />
-          <Area type="monotone" dataKey="invest" stroke="#f472b6" strokeWidth={2} fill="url(#grad-invest)" isAnimationActive={false} />
+          <Area type="monotone" dataKey="spend"  stroke="#f87171" strokeWidth={2} fill="url(#grad-out)" isAnimationActive={false} />
+          <Area type="monotone" dataKey="invest" stroke="#60a5fa" strokeWidth={2} fill="url(#grad-invest)" isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
