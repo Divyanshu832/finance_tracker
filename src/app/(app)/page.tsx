@@ -17,20 +17,16 @@ import {
 } from "@/lib/queries";
 import { getMonthlyTrend, getCategoryBreakdown, getRecentActivity } from "@/lib/dashboard-data";
 import { fmtDate, monthCycle, daysFromNow } from "@/lib/dates";
-import { format, startOfMonth, addMonths } from "date-fns";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-function nextDueDate(due_day: number): string {
+// Due date for the CURRENT cycle (clamped to month length). Past values
+// stay in the past so the UI can mark them as overdue.
+function thisCycleDueDate(due_day: number): string {
   const today = new Date();
   const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const d = Math.min(due_day, lastDay);
-  let candidate = new Date(today.getFullYear(), today.getMonth(), d);
-  if (candidate < today) {
-    const nm = addMonths(startOfMonth(today), 1);
-    const lastDay2 = new Date(nm.getFullYear(), nm.getMonth() + 1, 0).getDate();
-    candidate = new Date(nm.getFullYear(), nm.getMonth(), Math.min(due_day, lastDay2));
-  }
-  return format(candidate, "yyyy-MM-dd");
+  return format(new Date(today.getFullYear(), today.getMonth(), d), "yyyy-MM-dd");
 }
 
 export default async function Dashboard() {
@@ -56,9 +52,8 @@ export default async function Dashboard() {
   const paidBillIds = new Set(payments.filter((p) => p.cycle_month === cycleMonth).map((p) => p.bill_id));
   const upcomingBills = bills
     .filter((b) => !paidBillIds.has(b.id))
-    .map((b) => ({ ...b, due_on: nextDueDate(b.due_day) }))
-    .sort((a, b) => a.due_on.localeCompare(b.due_on))
-    .slice(0, 5);
+    .map((b) => ({ ...b, due_on: thisCycleDueDate(b.due_day) }))
+    .sort((a, b) => a.due_on.localeCompare(b.due_on));
 
   const totalOwedToMe = lendings.filter((l) => l.direction === "lent").reduce((s, l) => s + outstanding(l, settlements), 0);
   const totalIOwe = lendings.filter((l) => l.direction === "borrowed").reduce((s, l) => s + outstanding(l, settlements), 0);
@@ -66,9 +61,11 @@ export default async function Dashboard() {
 
   const activeVentures = ventures.filter((v) => v.status === "active").slice(0, 4);
   const activeSubs = subs.filter((s) => s.active);
-  const subsThisWeek = activeSubs
-    .map((s) => ({ ...s, due_on: nextDueDate(s.billing_day) }))
-    .filter((s) => daysFromNow(s.due_on) >= 0 && daysFromNow(s.due_on) <= 7)
+  // Subs not yet charged for the current cycle (last_charged_on missing
+  // or older than the cycle start).
+  const subsThisMonth = activeSubs
+    .filter((s) => !s.last_charged_on || s.last_charged_on < start)
+    .map((s) => ({ ...s, due_on: thisCycleDueDate(s.billing_day) }))
     .sort((a, b) => a.due_on.localeCompare(b.due_on));
   const investedTotal = investmentTxs.filter((t) => !t.excluded_from_balance).reduce((s, t) => s + t.amount, 0);
   const monthlySubBurn = activeSubs.reduce((s, x) => s + x.amount_inr, 0);
@@ -164,11 +161,11 @@ export default async function Dashboard() {
         </Card>
 
         <div className="space-y-3">
-          {/* Upcoming bills */}
+          {/* Bills · this month */}
           <Card>
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <div className="text-xs uppercase tracking-wider text-muted-fg flex items-center gap-1.5">
-                <CreditCard className="size-3.5 text-warning" /> Upcoming bills
+                <CreditCard className="size-3.5 text-warning" /> Bills · this month
               </div>
               <Link href="/bills" className="text-xs text-muted-fg hover:text-foreground">View all →</Link>
             </div>
@@ -178,12 +175,17 @@ export default async function Dashboard() {
               <ul className="divide-y divide-border">
                 {upcomingBills.map((b) => {
                   const days = daysFromNow(b.due_on);
+                  const overdue = days < 0;
                   return (
                     <li key={b.id} className="flex items-center gap-3 px-5 py-3">
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium truncate">{b.name}</div>
-                        <div className={cn("text-[11px] mt-0.5", days <= 3 ? "text-warning" : "text-muted-fg")}>
-                          {days <= 0 ? "Due today" : `In ${days}d · ${fmtDate(b.due_on, "d MMM")}`}
+                        <div className={cn("text-[11px] mt-0.5", overdue ? "text-negative" : days <= 3 ? "text-warning" : "text-muted-fg")}>
+                          {overdue
+                            ? `Overdue · ${fmtDate(b.due_on, "d MMM")}`
+                            : days === 0
+                              ? "Due today"
+                              : `In ${days}d · ${fmtDate(b.due_on, "d MMM")}`}
                         </div>
                       </div>
                       <Amount paise={b.amount} tone="muted" className="text-sm" />
@@ -245,28 +247,33 @@ export default async function Dashboard() {
             )}
           </Card>
 
-          {/* Subscriptions due this week */}
+          {/* Subscriptions · this month */}
           <Card>
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <div className="text-xs uppercase tracking-wider text-muted-fg flex items-center gap-1.5">
-                <Repeat className="size-3.5" /> Subs · this week
+                <Repeat className="size-3.5" /> Subs · this month
               </div>
               <div className="text-[10px] text-muted-fg">
                 <Amount paise={monthlySubBurn} className="text-[10px]" />/mo
               </div>
             </div>
-            {subsThisWeek.length === 0 ? (
-              <Empty icon={Repeat} title="None this week" />
+            {subsThisMonth.length === 0 ? (
+              <Empty icon={Repeat} title="All charged" hint="Every active sub already hit this month." />
             ) : (
               <ul className="divide-y divide-border">
-                {subsThisWeek.map((s) => {
+                {subsThisMonth.map((s) => {
                   const days = daysFromNow(s.due_on);
+                  const overdue = days < 0;
                   return (
                     <li key={s.id} className="flex items-center gap-3 px-5 py-3">
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium truncate">{s.name}</div>
-                        <div className="text-[11px] text-muted-fg mt-0.5">
-                          {days === 0 ? "Today" : `In ${days}d · ${fmtDate(s.due_on, "d MMM")}`}
+                        <div className={cn("text-[11px] mt-0.5", overdue ? "text-negative" : days <= 3 ? "text-warning" : "text-muted-fg")}>
+                          {overdue
+                            ? `Overdue · ${fmtDate(s.due_on, "d MMM")}`
+                            : days === 0
+                              ? "Today"
+                              : `In ${days}d · ${fmtDate(s.due_on, "d MMM")}`}
                         </div>
                       </div>
                       <Amount paise={s.amount_inr} tone="muted" className="text-sm" />
