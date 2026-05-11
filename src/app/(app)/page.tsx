@@ -67,6 +67,10 @@ export default async function Dashboard() {
     .filter((s) => !s.last_charged_on || s.last_charged_on < start)
     .map((s) => ({ ...s, due_on: thisCycleDueDate(s.billing_day) }))
     .sort((a, b) => a.due_on.localeCompare(b.due_on));
+  const billsDueAmount = upcomingBills.reduce((s, b) => s + b.amount, 0);
+  const subsDueAmount = subsThisMonth.reduce((s, x) => s + x.amount_inr, 0);
+  const dueThisMonth = billsDueAmount + subsDueAmount;
+  const dueThisMonthCount = upcomingBills.length + subsThisMonth.length;
   const investedTotal = investmentTxs.filter((t) => !t.excluded_from_balance).reduce((s, t) => s + t.amount, 0);
   const monthlySubBurn = activeSubs.reduce((s, x) => s + x.amount_inr, 0);
 
@@ -114,7 +118,13 @@ export default async function Dashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <StatCard icon={ArrowDownToLine} accent="text-positive" label="Income (mo)"   value={monthIncome}    href="/income" />
         <StatCard icon={Receipt}         accent="text-negative" label="Expenses (mo)" value={monthExpense}   href="/expenses" />
-        <StatCard icon={CreditCard}      accent="text-warning"  label="Bills paid"    value={monthBillsPaid} href="/bills" />
+        <StatCard
+          icon={CreditCard}
+          accent="text-warning"
+          label={`Subs/Bills · ${dueThisMonthCount > 0 ? `${dueThisMonthCount} due` : "this month"}`}
+          value={dueThisMonth}
+          href="/bills"
+        />
         <StatCard icon={PiggyBank}       accent="text-invest"   label="Invested"      value={investedTotal}  href="/investments" />
       </div>
 
