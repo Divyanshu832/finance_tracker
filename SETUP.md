@@ -22,7 +22,7 @@ npm run dev
 ```
 
 Open <http://localhost:3000>. You'll be redirected to `/login`.
-Password: **Sandesha@bhutkichindi**
+Password: **GoAwayGay**
 
 ## 3. (Optional) Production cron
 
